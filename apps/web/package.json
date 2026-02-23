@@ -1,0 +1,40 @@
+{
+  "name": "@financial-notes/web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interface web para o sistema de anotações financeiras",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "clean": "rimraf .next out",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@financial-notes/shared": "*",
+    "@hookform/resolvers": "^3.3.4",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.575.0",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.49.3",
+    "tailwind-merge": "^3.5.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.0",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "autoprefixer": "^10.4.24",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "postcss": "^8.5.6",
+    "rimraf": "^5.0.5",
+    "tailwindcss": "^4.2.0",
+    "typescript": "^5.3.3"
+  }
+}

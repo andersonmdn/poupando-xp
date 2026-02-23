@@ -1,0 +1,37 @@
+/* Box-sizing para todos os elementos (compatível com Tailwind) */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Reset básico para body e html */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+/* Reset para listas */
+ol,
+ul {
+  list-style: none;
+}
+
+/* Reset para citações */
+blockquote,
+q {
+  quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+
+@import 'tailwindcss';
