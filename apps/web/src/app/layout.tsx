@@ -31,7 +31,7 @@ const inter = Inter({ subsets: ['latin'] });
  * ou da função generateMetadata() para metadados dinâmicos.
  */
 export const metadata: Metadata = {
-  title: 'Financial Notes - Controle suas finanças',
+  title: 'Poupando XP - Controle suas finanças',
   description:
     'Sistema simples e eficiente para controle de gastos e receitas pessoais',
   keywords: [

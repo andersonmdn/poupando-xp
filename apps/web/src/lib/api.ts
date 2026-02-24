@@ -12,11 +12,10 @@
  * e facilita manutenção.
  */
 
-import { ApiError } from '@financial-notes/shared';
+import { ApiError } from '@poupando-xp/shared';
 
 // Configuração base da API
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || 'http://172.26.141.51:3004';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 console.log('📡 API Base URL:', API_BASE_URL);
 
 /**

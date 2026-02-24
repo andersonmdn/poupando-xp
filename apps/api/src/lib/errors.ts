@@ -1,4 +1,4 @@
-import { ApiError } from '@financial-notes/shared';
+import { ApiError } from '@poupando-xp/shared';
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import { ZodError } from 'zod';
 

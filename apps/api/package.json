@@ -1,5 +1,5 @@
 {
-  "name": "@financial-notes/api",
+  "name": "@poupando-xp/api",
   "version": "1.0.0",
   "description": "API REST para o sistema de anotações financeiras",
   "main": "dist/index.js",
@@ -21,7 +21,7 @@
     "@fastify/cors": "^8.5.0",
     "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^3.0.0",
-    "@financial-notes/shared": "*",
+    "@poupando-xp/shared": "*",
     "@prisma/client": "^5.8.1",
     "bcryptjs": "^2.4.3",
     "dotenv": "^17.3.1",

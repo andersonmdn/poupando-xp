@@ -1,11 +1,7 @@
 import { AuthService } from '@/lib/auth';
 import { prisma } from '@/lib/database';
 import { ConflictError, UnauthorizedError } from '@/lib/errors';
-import {
-  AuthResponse,
-  loginSchema,
-  registerSchema,
-} from '@financial-notes/shared';
+import { AuthResponse, loginSchema, registerSchema } from '@poupando-xp/shared';
 import { FastifyInstance } from 'fastify';
 
 /**

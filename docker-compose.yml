@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: financial-notes-postgres
+    container_name: poupando-xp-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-financial_user}

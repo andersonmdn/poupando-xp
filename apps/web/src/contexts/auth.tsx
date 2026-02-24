@@ -19,7 +19,7 @@
  */
 
 import { apiClient } from '@/lib/api';
-import { AuthResponse, User } from '@financial-notes/shared';
+import { AuthResponse, User } from '@poupando-xp/shared';
 import {
   createContext,
   ReactNode,
@@ -131,9 +131,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Salva token e usuário
       apiClient.setAuthToken(response.token);
       setUser(response.user);
-    } catch (error) {
-      // Re-lança o erro para o componente tratar
-      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -162,8 +159,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Salva token e usuário
       apiClient.setAuthToken(response.token);
       setUser(response.user);
-    } catch (error) {
-      throw error;
     } finally {
       setIsLoading(false);
     }

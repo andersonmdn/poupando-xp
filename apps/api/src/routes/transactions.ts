@@ -7,7 +7,7 @@ import {
   Transaction,
   transactionQuerySchema,
   updateTransactionSchema,
-} from '@financial-notes/shared';
+} from '@poupando-xp/shared';
 import { FastifyInstance } from 'fastify';
 
 /**

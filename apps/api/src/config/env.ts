@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Carrega variáveis de ambiente
-dotenvConfig({ path: path.resolve(__dirname, '../..', '.env') });
+dotenvConfig({ path: path.resolve(__dirname, '../../../..', '.env') });
 
 /**
  * Schema de validação para as variáveis de ambiente
@@ -28,6 +28,14 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
+  API_HTTPS_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform(value => value === 'true'),
+  API_HTTPS_CERT: z.string().optional(),
+  API_HTTPS_KEY: z.string().optional(),
+  API_HTTPS_CERT_PATH: z.string().default('/certs/server.crt'),
+  API_HTTPS_KEY_PATH: z.string().default('/certs/server.key'),
 });
 
 type Env = z.infer<typeof envSchema>;
@@ -39,7 +47,7 @@ function validateEnv(): Env {
   console.log('🔍 Validando variáveis de ambiente...');
   console.log(
     '📋 Carregando .env de:',
-    path.resolve(__dirname, '../..', '.env')
+    path.resolve(__dirname, '../../../..', '.env')
   );
   try {
     return envSchema.parse(process.env);
@@ -60,6 +68,13 @@ export const config = {
     env: env.NODE_ENV,
     isDevelopment: env.NODE_ENV === 'development',
     isProduction: env.NODE_ENV === 'production',
+    https: {
+      enabled: env.API_HTTPS_ENABLED,
+      cert: env.API_HTTPS_CERT,
+      key: env.API_HTTPS_KEY,
+      certPath: env.API_HTTPS_CERT_PATH,
+      keyPath: env.API_HTTPS_KEY_PATH,
+    },
   },
 
   database: {

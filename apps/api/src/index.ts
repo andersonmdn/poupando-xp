@@ -8,64 +8,133 @@ import cors from '@fastify/cors';
 import swagger from '@fastify/swagger';
 import swaggerUI from '@fastify/swagger-ui';
 import Fastify from 'fastify';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const apiRoot = path.resolve(__dirname, '..');
+const workspaceRoot = path.resolve(apiRoot, '../..');
+
+function resolveFilePathCandidates(filePath: string): string[] {
+  const trimmedPath = filePath.trim();
+  const candidates = new Set<string>([trimmedPath]);
+
+  if (!path.isAbsolute(trimmedPath)) {
+    candidates.add(path.resolve(process.cwd(), trimmedPath));
+    candidates.add(path.resolve(apiRoot, trimmedPath));
+  }
+
+  if (trimmedPath.startsWith('/apps/api/')) {
+    candidates.add(path.resolve(workspaceRoot, `.${trimmedPath}`));
+  }
+
+  return Array.from(candidates);
+}
+
+function readPemFile(filePath: string): Buffer {
+  const candidates = resolveFilePathCandidates(filePath);
+
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return fs.readFileSync(candidate);
+    }
+  }
+
+  throw new Error(
+    `Arquivo não encontrado para path=${filePath}. Tentativas: ${candidates.join(', ')}`
+  );
+}
+
+function getHttpsOptions() {
+  if (!config.app.https.enabled) {
+    return undefined;
+  }
+
+  const certFromEnv = config.app.https.cert;
+  const keyFromEnv = config.app.https.key;
+
+  if ((certFromEnv && !keyFromEnv) || (!certFromEnv && keyFromEnv)) {
+    throw new Error(
+      'HTTPS habilitado, mas API_HTTPS_CERT e API_HTTPS_KEY devem ser informados juntos.'
+    );
+  }
+
+  if (certFromEnv && keyFromEnv) {
+    return {
+      cert: certFromEnv,
+      key: keyFromEnv,
+    };
+  }
+
+  try {
+    return {
+      cert: readPemFile(config.app.https.certPath),
+      key: readPemFile(config.app.https.keyPath),
+    };
+  } catch (error) {
+    throw new Error(
+      `HTTPS habilitado, mas não foi possível ler os arquivos de certificado/chave em \nCertPath=${config.app.https.certPath}\nKeyPath=${config.app.https.keyPath}\nErro: ${error}`
+    );
+  }
+}
 
 /**
  * Cria e configura a instância do Fastify
  */
 async function createApp() {
+  const httpsOptions = getHttpsOptions();
+  const protocol = httpsOptions ? 'https' : 'http';
+
+  const logger = {
+    level: config.logging.level,
+    transport: config.logging.prettyPrint
+      ? {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'HH:MM:ss Z',
+            ignore: 'pid,hostname',
+          },
+        }
+      : undefined,
+  } as any; // Temporary fix for type issues
+
   const fastify = Fastify({
-    logger: {
-      level: config.logging.level,
-      transport: config.logging.prettyPrint
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss Z',
-              ignore: 'pid,hostname',
-            },
-          }
-        : undefined,
-    } as any, // Temporary fix for type issues
-  });
+    ...(httpsOptions ? { https: httpsOptions } : {}),
+    logger,
+  } as any);
 
   // Configurar CORS para WSL (aceita Windows + WSL)
   await fastify.register(cors, {
     origin: [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
-      /^http:\/\/.*:3000$/, // Aceita qualquer IP na porta 3000
+      /^http:\/\/.*:3000$/,
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
   });
 
   // Configurar Swagger para documentação da API
   await fastify.register(swagger, {
-    swagger: {
+    openapi: {
+      openapi: '3.0.3',
       info: {
-        title: 'Financial Notes API',
-        description: 'API REST para sistema de anotações financeiras',
+        title: 'Poupando XP API',
+        description: 'API REST para sistema de controle financeiro pessoal',
         version: '1.0.0',
         contact: {
           name: 'Desenvolvedor',
           email: 'dev@example.com',
         },
       },
-      host: `localhost:${config.app.port}`,
-      schemes: ['http'],
       servers: [
-        {
-          url: `http://localhost:${config.app.port}`,
-          description: 'Desenvolvimento Local',
-        },
-        {
-          url: `http://127.0.0.1:${config.app.port}`,
-          description: 'Desenvolvimento WSL',
-        },
+        { url: `${protocol}://localhost:${config.app.port}` },
+        { url: `${protocol}://127.0.0.1:${config.app.port}` },
       ],
-      schemes: ['http'],
-      consumes: ['application/json'],
-      produces: ['application/json'],
       tags: [
         { name: 'Health', description: 'Endpoints de saúde da API' },
         { name: 'Auth', description: 'Endpoints de autenticação' },
@@ -75,14 +144,17 @@ async function createApp() {
         },
         { name: 'User', description: 'Endpoints do usuário' },
       ],
-      securityDefinitions: {
-        bearerAuth: {
-          type: 'apiKey',
-          name: 'Authorization',
-          in: 'header',
-          description: 'Token JWT no formato: Bearer {token}',
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description: 'Token JWT no formato: Bearer {token}',
+          },
         },
       },
+      security: [],
     },
   });
 
@@ -150,6 +222,9 @@ async function start() {
     fastify.log.info(`🚀 Servidor rodando em: ${address}`);
     fastify.log.info(`📚 Documentação disponível em: ${address}/docs`);
     fastify.log.info(`🔧 Ambiente: ${config.app.env}`);
+    fastify.log.info(
+      `🔐 HTTPS: ${config.app.https.enabled ? 'habilitado' : 'desabilitado'}`
+    );
   } catch (error) {
     console.error('❌ Erro ao iniciar o servidor:', error);
     process.exit(1);

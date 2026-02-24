@@ -1,4 +1,4 @@
-## 🎯 Projeto Financial Notes - COMPLETADO!
+## 🎯 Projeto Poupando XP - COMPLETADO!
 
 ✅ **Status**: Base completa criada e funcionando perfeitamente!
 
@@ -56,7 +56,8 @@
 2. **Acesse a aplicação:**
    - Frontend: http://localhost:3000
    - API: http://localhost:3001
-   - Docs: http://localhost:3001/documentation
+   - Docs: http://localhost:3001/docs
+   - OpenAPI JSON: http://localhost:3001/docs/json
 
 3. **Dados de teste:**
    - Email: teste@example.com

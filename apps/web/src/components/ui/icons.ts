@@ -6,6 +6,11 @@
 
 export {
   ArrowLeft,
+  Bell,
+  CalendarDays,
+  Check,
+  Cog,
+  DollarSign,
   Eye,
   EyeOff,
   Filter,
@@ -18,7 +23,9 @@ export {
   Plus,
   Search,
   Sun,
+  Tag,
   Trash2,
   TrendingDown,
   TrendingUp,
+  X,
 } from 'lucide-react';

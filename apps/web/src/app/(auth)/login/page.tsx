@@ -1,11 +1,12 @@
 'use client';
 
-import { HandCoins, LogIn, PersonStanding } from '@/components/ui/icons';
+import { Brand } from '@/components/ui/Brand';
+import { LogIn, PersonStanding } from '@/components/ui/icons';
 import { Input } from '@/components/ui/Input';
 import { useAuth } from '@/contexts/auth';
 import { ApiClientError } from '@/lib/api';
-import { LoginDTO, loginSchema } from '@financial-notes/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LoginDTO, loginSchema } from '@poupando-xp/shared';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -79,14 +80,7 @@ function LoginForm() {
     <div className="w-full min-h-screen flex items-center justify-center bg-blue-950">
       <div className="w-1/2 min-h-screen flex items-center justify-center flex-col rounded-xs">
         <div className="w-full flex-1 flex items-center justify-center gap-4">
-          <div className="flex min-w-md">
-            <span className="h-10 w-10 rounded-md bg-blue-500 flex items-center justify-center">
-              <HandCoins className="h-6 w-6 text-white" />
-            </span>
-            <span className="text-lg font-semibold text-white px-3 py-2">
-              FinTrack
-            </span>
-          </div>
+          <Brand />
         </div>
         <div className="w-full flex-4 flex items-center justify-center">
           <div className="max-w-md text-center">

@@ -14,15 +14,15 @@
  * e diferenças. Note como os padrões se repetem.
  */
 
+import { Filter, Pencil, Plus } from '@/components/ui/icons';
 import { useAuth } from '@/contexts/auth';
 import { ApiClientError } from '@/lib/api';
-import { RegisterDTO, registerSchema } from '@financial-notes/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { RegisterDTO, registerSchema } from '@poupando-xp/shared';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Plus, Filter, Pencil } from '@/components/ui/icons';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -86,7 +86,7 @@ export default function RegisterPage() {
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-bold text-primary mb-2">
-            💰 Financial Notes
+            💰 Poupando XP
           </h1>
           <h2 className="text-xl font-semibold mb-2">Criar nova conta</h2>
           <p className="text-secondary">

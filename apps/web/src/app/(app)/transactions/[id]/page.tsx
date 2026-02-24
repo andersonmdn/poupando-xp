@@ -16,8 +16,8 @@
  */
 
 import { Moon, Pencil, Trash2 } from '@/components/ui/icons';
-import { useAuth } from '@/contexts/auth';
 import { apiClient, ApiClientError } from '@/lib/api';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   getCategoryLabel,
   getExpenseCategories,
@@ -27,8 +27,7 @@ import {
   TransactionType,
   UpdateTransactionDTO,
   updateTransactionSchema,
-} from '@financial-notes/shared';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from '@poupando-xp/shared';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -37,7 +36,6 @@ import { useForm } from 'react-hook-form';
 export default function EditTransactionPage() {
   const router = useRouter();
   const params = useParams();
-  const { user, logout } = useAuth();
 
   const transactionId = params.id as string;
 
@@ -185,24 +183,8 @@ export default function EditTransactionPage() {
    */
   if (initialLoading) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          backgroundColor: 'var(--color-background-secondary)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-          }}
-        >
-          <div className="card text-center">
-            <p>Carregando transação...</p>
-          </div>
-        </div>
+      <div className="card text-center">
+        <p>Carregando transação...</p>
       </div>
     );
   }
@@ -212,443 +194,369 @@ export default function EditTransactionPage() {
    */
   if (notFound) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          backgroundColor: 'var(--color-background-secondary)',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '100vh',
-          }}
-        >
-          <div className="card text-center">
-            <div
-              style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}
-            >
-              😕
-            </div>
-            <h2 className="text-xl font-bold mb-4">Transação não encontrada</h2>
-            <p className="text-secondary mb-6">
-              A transação que você está tentando editar não foi encontrada.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Link href="/transactions" className="btn btn-primary">
-                Ver Transações
-              </Link>
-              <Link href="/dashboard" className="btn btn-secondary">
-                Dashboard
-              </Link>
-            </div>
-          </div>
+      <div className="card text-center">
+        <div style={{ fontSize: '4rem', marginBottom: 'var(--spacing-md)' }}>
+          😕
+        </div>
+        <h2 className="text-xl font-bold mb-4">Transação não encontrada</h2>
+        <p className="text-secondary mb-6">
+          A transação que você está tentando editar não foi encontrada.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <Link href="/transactions" className="btn btn-primary">
+            Ver Transações
+          </Link>
+          <Link href="/dashboard" className="btn btn-secondary">
+            Dashboard
+          </Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: 'var(--color-background-secondary)',
-      }}
-    >
-      {/* Header */}
-      <header
-        style={{
-          backgroundColor: 'var(--color-background)',
-          borderBottom: '1px solid var(--color-border)',
-          padding: 'var(--spacing-md) 0',
-        }}
-      >
-        <div className="container">
-          <nav className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/dashboard"
-                className="text-xl font-bold text-primary"
-              >
-                💰 Financial Notes
-              </Link>
-              <span className="text-secondary">/ Editar Transação</span>
-            </div>
+    <>
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+        {/* Header da página */}
+        <section className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Editar Transação</h1>
+          <p className="text-secondary">
+            {transaction?.description && `Editando: ${transaction.description}`}
+          </p>
+        </section>
 
-            <div className="flex items-center gap-4">
-              <Link href="/transactions" className="text-secondary">
-                Ver Transações
-              </Link>
-              <Link href="/dashboard" className="text-secondary">
-                Dashboard
-              </Link>
+        {/* Indicador de alterações não salvas */}
+        {isDirty && (
+          <div
+            style={{
+              backgroundColor: '#fef3c7',
+              color: '#d97706',
+              padding: 'var(--spacing-sm) var(--spacing-md)',
+              borderRadius: 'var(--border-radius-md)',
+              marginBottom: 'var(--spacing-md)',
+              fontSize: '0.875rem',
+              border: '1px solid #fed7aa',
+            }}
+          >
+            ⚠️ Você tem alterações não salvas
+          </div>
+        )}
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-secondary">{user?.name}</span>
-                <button
-                  onClick={logout}
-                  className="btn btn-secondary"
+        {/* Mensagem de sucesso */}
+        {success && (
+          <div
+            style={{
+              backgroundColor: '#dcfce7',
+              color: '#166534',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--border-radius-md)',
+              marginBottom: 'var(--spacing-md)',
+              fontSize: '0.875rem',
+              border: '1px solid #bbf7d0',
+            }}
+          >
+            ✅ Transação atualizada com sucesso!
+          </div>
+        )}
+
+        {/* Erro da API */}
+        {apiError && (
+          <div
+            style={{
+              backgroundColor: '#fee2e2',
+              color: '#dc2626',
+              padding: 'var(--spacing-md)',
+              borderRadius: 'var(--border-radius-md)',
+              marginBottom: 'var(--spacing-md)',
+              fontSize: '0.875rem',
+              border: '1px solid #fecaca',
+            }}
+          >
+            ⚠️ {apiError}
+          </div>
+        )}
+
+        {/* Formulário */}
+        <div className="card">
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* Tipo da transação */}
+            <div className="mb-4">
+              <label className="label">Tipo da Transação *</label>
+              <div className="flex gap-4">
+                <label
                   style={{
-                    fontSize: '0.75rem',
-                    padding: 'var(--spacing-xs) var(--spacing-sm)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
                   }}
                 >
-                  Sair
-                </button>
-              </div>
-            </div>
-          </nav>
-        </div>
-      </header>
-
-      <main className="container" style={{ paddingTop: 'var(--spacing-xl)' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          {/* Header da página */}
-          <section className="mb-6">
-            <h1 className="text-2xl font-bold mb-2">Editar Transação</h1>
-            <p className="text-secondary">
-              {transaction?.description &&
-                `Editando: ${transaction.description}`}
-            </p>
-          </section>
-
-          {/* Indicador de alterações não salvas */}
-          {isDirty && (
-            <div
-              style={{
-                backgroundColor: '#fef3c7',
-                color: '#d97706',
-                padding: 'var(--spacing-sm) var(--spacing-md)',
-                borderRadius: 'var(--border-radius-md)',
-                marginBottom: 'var(--spacing-md)',
-                fontSize: '0.875rem',
-                border: '1px solid #fed7aa',
-              }}
-            >
-              ⚠️ Você tem alterações não salvas
-            </div>
-          )}
-
-          {/* Mensagem de sucesso */}
-          {success && (
-            <div
-              style={{
-                backgroundColor: '#dcfce7',
-                color: '#166534',
-                padding: 'var(--spacing-md)',
-                borderRadius: 'var(--border-radius-md)',
-                marginBottom: 'var(--spacing-md)',
-                fontSize: '0.875rem',
-                border: '1px solid #bbf7d0',
-              }}
-            >
-              ✅ Transação atualizada com sucesso!
-            </div>
-          )}
-
-          {/* Erro da API */}
-          {apiError && (
-            <div
-              style={{
-                backgroundColor: '#fee2e2',
-                color: '#dc2626',
-                padding: 'var(--spacing-md)',
-                borderRadius: 'var(--border-radius-md)',
-                marginBottom: 'var(--spacing-md)',
-                fontSize: '0.875rem',
-                border: '1px solid #fecaca',
-              }}
-            >
-              ⚠️ {apiError}
-            </div>
-          )}
-
-          {/* Formulário */}
-          <div className="card">
-            <form onSubmit={handleSubmit(onSubmit)}>
-              {/* Tipo da transação */}
-              <div className="mb-4">
-                <label className="label">Tipo da Transação *</label>
-                <div className="flex gap-4">
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <input
-                      {...register('type')}
-                      type="radio"
-                      value="INCOME"
-                      onChange={() => handleTypeChange('INCOME')}
-                    />
-                    <span className="text-success font-medium">📈 Receita</span>
-                  </label>
-                  <label
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <input
-                      {...register('type')}
-                      type="radio"
-                      value="EXPENSE"
-                      onChange={() => handleTypeChange('EXPENSE')}
-                    />
-                    <span className="text-error font-medium">📉 Despesa</span>
-                  </label>
-                </div>
-                {errors.type && (
-                  <p className="text-error text-sm mt-2">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Valor */}
-              <div className="mb-4">
-                <label htmlFor="amount" className="label">
-                  Valor (R$) *
+                  <input
+                    {...register('type')}
+                    type="radio"
+                    value="INCOME"
+                    onChange={() => handleTypeChange('INCOME')}
+                  />
+                  <span className="text-success font-medium">📈 Receita</span>
                 </label>
-                <input
-                  {...register('amount', { valueAsNumber: true })}
-                  type="number"
-                  id="amount"
-                  className="input"
-                  placeholder="0,00"
-                  min="0"
-                  step="0.01"
-                />
-                {errors.amount && (
-                  <p className="text-error text-sm mt-2">
-                    {errors.amount.message}
-                  </p>
-                )}
-              </div>
-
-              {/* Descrição */}
-              <div className="mb-4">
-                <label htmlFor="description" className="label">
-                  Descrição *
+                <label
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <input
+                    {...register('type')}
+                    type="radio"
+                    value="EXPENSE"
+                    onChange={() => handleTypeChange('EXPENSE')}
+                  />
+                  <span className="text-error font-medium">📉 Despesa</span>
                 </label>
-                <input
-                  {...register('description')}
-                  type="text"
-                  id="description"
-                  className="input"
-                  placeholder="Descreva esta transação"
-                  maxLength={255}
-                />
-                {errors.description && (
-                  <p className="text-error text-sm mt-2">
-                    {errors.description.message}
-                  </p>
-                )}
               </div>
-
-              {/* Categoria */}
-              {selectedType && (
-                <div className="mb-4">
-                  <label htmlFor="category" className="label">
-                    Categoria *
-                  </label>
-                  <select
-                    {...register('category')}
-                    id="category"
-                    className="input"
-                  >
-                    {getAvailableCategories(selectedType).map(category => (
-                      <option key={category} value={category}>
-                        {getCategoryLabel(category)}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.category && (
-                    <p className="text-error text-sm mt-2">
-                      {errors.category.message}
-                    </p>
-                  )}
-                </div>
+              {errors.type && (
+                <p className="text-error text-sm mt-2">{errors.type.message}</p>
               )}
+            </div>
 
-              {/* Data */}
-              <div className="mb-6">
-                <label htmlFor="occurredAt" className="label">
-                  Data da Transação *
+            {/* Valor */}
+            <div className="mb-4">
+              <label htmlFor="amount" className="label">
+                Valor (R$) *
+              </label>
+              <input
+                {...register('amount', { valueAsNumber: true })}
+                type="number"
+                id="amount"
+                className="input"
+                placeholder="0,00"
+                min="0"
+                step="0.01"
+              />
+              {errors.amount && (
+                <p className="text-error text-sm mt-2">
+                  {errors.amount.message}
+                </p>
+              )}
+            </div>
+
+            {/* Descrição */}
+            <div className="mb-4">
+              <label htmlFor="description" className="label">
+                Descrição *
+              </label>
+              <input
+                {...register('description')}
+                type="text"
+                id="description"
+                className="input"
+                placeholder="Descreva esta transação"
+                maxLength={255}
+              />
+              {errors.description && (
+                <p className="text-error text-sm mt-2">
+                  {errors.description.message}
+                </p>
+              )}
+            </div>
+
+            {/* Categoria */}
+            {selectedType && (
+              <div className="mb-4">
+                <label htmlFor="category" className="label">
+                  Categoria *
                 </label>
-                <input
-                  {...register('occurredAt')}
-                  type="date"
-                  id="occurredAt"
+                <select
+                  {...register('category')}
+                  id="category"
                   className="input"
-                  max={new Date().toISOString().split('T')[0]}
-                />
-                {errors.occurredAt && (
+                >
+                  {getAvailableCategories(selectedType).map(category => (
+                    <option key={category} value={category}>
+                      {getCategoryLabel(category)}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && (
                   <p className="text-error text-sm mt-2">
-                    {errors.occurredAt.message}
+                    {errors.category.message}
                   </p>
                 )}
               </div>
+            )}
 
-              {/* Botões */}
-              <div className="flex gap-2 mb-4">
-                <button
-                  type="submit"
-                  disabled={isSubmitting || !isDirty}
-                  className="btn btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  {isSubmitting ? 'Salvando...' : '💾 Salvar Alterações'}
-                </button>
-
-                <Link
-                  href="/transactions"
-                  className="btn btn-secondary"
-                  style={{ flex: 1 }}
-                >
-                  ↩️ Cancelar
-                </Link>
-              </div>
-
-              {/* Zona de perigo */}
-              <div
-                style={{
-                  borderTop: '1px solid var(--color-border)',
-                  paddingTop: 'var(--spacing-md)',
-                  marginTop: 'var(--spacing-md)',
-                }}
-              >
-                <h3 className="text-sm font-semibold text-error mb-2">
-                  Zona de Perigo
-                </h3>
-                <p className="text-sm text-secondary mb-4">
-                  Uma vez excluída, esta transação não poderá ser recuperada.
+            {/* Data */}
+            <div className="mb-6">
+              <label htmlFor="occurredAt" className="label">
+                Data da Transação *
+              </label>
+              <input
+                {...register('occurredAt')}
+                type="date"
+                id="occurredAt"
+                className="input"
+                max={new Date().toISOString().split('T')[0]}
+              />
+              {errors.occurredAt && (
+                <p className="text-error text-sm mt-2">
+                  {errors.occurredAt.message}
                 </p>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="btn btn-error"
-                  style={{ fontSize: '0.875rem' }}
-                >
-                  🗑️ Excluir Transação
-                </button>
-              </div>
-            </form>
-          </div>
+              )}
+            </div>
 
-          {/* Informações adicionais */}
-          {transaction && (
-            <section className="mt-6">
-              <div className="card" style={{ fontSize: '0.875rem' }}>
-                <h3 className="font-semibold mb-3">
-                  ℹ️ Informações da Transação
-                </h3>
-                <div style={{ display: 'grid', gap: '0.5rem' }}>
-                  <div className="flex justify-between">
-                    <span className="text-secondary">ID:</span>
-                    <span className="font-mono text-sm">{transaction.id}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-secondary">Criado em:</span>
-                    <span>
-                      {new Date(transaction.createdAt).toLocaleString('pt-BR')}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-secondary">Última atualização:</span>
-                    <span>
-                      {new Date(transaction.updatedAt).toLocaleString('pt-BR')}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
+            {/* Botões */}
+            <div className="flex gap-2 mb-4">
+              <button
+                type="submit"
+                disabled={isSubmitting || !isDirty}
+                className="btn btn-primary"
+                style={{ flex: 1 }}
+              >
+                {isSubmitting ? 'Salvando...' : '💾 Salvar Alterações'}
+              </button>
 
-          {/* Dicas de melhorias */}
-          <section className="mt-8">
+              <Link
+                href="/transactions"
+                className="btn btn-secondary"
+                style={{ flex: 1 }}
+              >
+                ↩️ Cancelar
+              </Link>
+            </div>
+
+            {/* Zona de perigo */}
             <div
-              className="card"
               style={{
-                backgroundColor: 'var(--color-background-tertiary)',
-                borderStyle: 'dashed',
+                borderTop: '1px solid var(--color-border)',
+                paddingTop: 'var(--spacing-md)',
+                marginTop: 'var(--spacing-md)',
               }}
             >
-              <h3 className="font-semibold mb-4">
-                🔧 Melhorias para implementar
+              <h3 className="text-sm font-semibold text-error mb-2">
+                Zona de Perigo
               </h3>
-              <ul className="text-sm text-secondary">
-                <li className="mb-2">
-                  <strong>Histórico de alterações:</strong> Rastrear quem e
-                  quando modificou
-                </li>
-                <li className="mb-2">
-                  <strong>Confirmação antes de sair:</strong> Avisar sobre
-                  alterações não salvas
-                </li>
-                <li className="mb-2">
-                  <strong>Auto-save:</strong> Salvar automaticamente enquanto o
-                  usuário digita
-                </li>
-                <li className="mb-2">
-                  <strong>Duplicar transação:</strong> Criar cópia com dados
-                  similares
-                </li>
-                <li className="mb-2">
-                  <strong>Validação de servidor:</strong> Validar dados no
-                  backend também
-                </li>
-              </ul>
+              <p className="text-sm text-secondary mb-4">
+                Uma vez excluída, esta transação não poderá ser recuperada.
+              </p>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="btn btn-error"
+                style={{ fontSize: '0.875rem' }}
+              >
+                🗑️ Excluir Transação
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Informações adicionais */}
+        {transaction && (
+          <section className="mt-6">
+            <div className="card" style={{ fontSize: '0.875rem' }}>
+              <h3 className="font-semibold mb-3">
+                ℹ️ Informações da Transação
+              </h3>
+              <div style={{ display: 'grid', gap: '0.5rem' }}>
+                <div className="flex justify-between">
+                  <span className="text-secondary">ID:</span>
+                  <span className="font-mono text-sm">{transaction.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-secondary">Criado em:</span>
+                  <span>
+                    {new Date(transaction.createdAt).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-secondary">Última atualização:</span>
+                  <span>
+                    {new Date(transaction.updatedAt).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+              </div>
             </div>
           </section>
+        )}
 
-          {/*
+        {/* Dicas de melhorias */}
+        <section className="mt-8">
+          <div
+            className="card"
+            style={{
+              backgroundColor: 'var(--color-background-tertiary)',
+              borderStyle: 'dashed',
+            }}
+          >
+            <h3 className="font-semibold mb-4">
+              🔧 Melhorias para implementar
+            </h3>
+            <ul className="text-sm text-secondary">
+              <li className="mb-2">
+                <strong>Histórico de alterações:</strong> Rastrear quem e quando
+                modificou
+              </li>
+              <li className="mb-2">
+                <strong>Confirmação antes de sair:</strong> Avisar sobre
+                alterações não salvas
+              </li>
+              <li className="mb-2">
+                <strong>Auto-save:</strong> Salvar automaticamente enquanto o
+                usuário digita
+              </li>
+              <li className="mb-2">
+                <strong>Duplicar transação:</strong> Criar cópia com dados
+                similares
+              </li>
+              <li className="mb-2">
+                <strong>Validação de servidor:</strong> Validar dados no backend
+                também
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/*
             TAILWIND DEMO (você pode remover depois)
             Objetivo: exemplo mínimo de classes do Tailwind sem afetar o CSS atual
           */}
-          <section className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
-            <h2 className="text-lg font-semibold">Tailwind Demo</h2>
-            <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-              Exemplo de spacing, cores e dark mode por classe.
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
-                INCOME
-              </span>
-              <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-medium text-rose-800 dark:bg-rose-900/30 dark:text-rose-200">
-                EXPENSE
-              </span>
-              <button className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 active:bg-zinc-950 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
-                Botão Tailwind
-              </button>
-            </div>
-          </section>
+        <section className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 text-zinc-900 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50">
+          <h2 className="text-lg font-semibold">Tailwind Demo</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Exemplo de spacing, cores e dark mode por classe.
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200">
+              INCOME
+            </span>
+            <span className="rounded-full bg-rose-100 px-3 py-1 text-xs font-medium text-rose-800 dark:bg-rose-900/30 dark:text-rose-200">
+              EXPENSE
+            </span>
+            <button className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 active:bg-zinc-950 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-200">
+              Botão Tailwind
+            </button>
+          </div>
+        </section>
 
-          {/*
+        {/*
             ICONS DEMO (removível)
             Objetivo: demonstrar uso do lucide-react com Tailwind
           */}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <button className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900">
-              <Pencil className="h-4 w-4" />
-              Editar
-            </button>
-            <span className="inline-flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-              <Moon className="h-4 w-4" /> Modo escuro
-            </span>
-            <span className="inline-flex items-center gap-2 text-sm text-rose-700 dark:text-rose-300">
-              <Trash2 className="h-4 w-4" /> Excluir
-            </span>
-          </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <button className="inline-flex items-center gap-2 rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-50 dark:text-zinc-900">
+            <Pencil className="h-4 w-4" />
+            Editar
+          </button>
+          <span className="inline-flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+            <Moon className="h-4 w-4" /> Modo escuro
+          </span>
+          <span className="inline-flex items-center gap-2 text-sm text-rose-700 dark:text-rose-300">
+            <Trash2 className="h-4 w-4" /> Excluir
+          </span>
         </div>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }

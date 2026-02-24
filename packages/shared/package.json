@@ -1,7 +1,7 @@
 {
-  "name": "@financial-notes/shared",
+  "name": "@poupando-xp/shared",
   "version": "1.0.0",
-  "description": "Shared types, schemas and utilities for Financial Notes app",
+  "description": "Shared types, schemas and utilities for Poupando XP app",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {

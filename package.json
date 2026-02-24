@@ -1,7 +1,7 @@
 {
-  "name": "financial-notes-monorepo",
+  "name": "poupando-xp-monorepo",
   "version": "1.0.0",
-  "description": "Sistema de anotações financeiras - Monorepo com Next.js e Fastify",
+  "description": "Sistema Poupando XP - Monorepo com Next.js e Fastify",
   "private": true,
   "workspaces": [
     "apps/*",

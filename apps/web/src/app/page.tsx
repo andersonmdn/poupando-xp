@@ -45,7 +45,7 @@ export default function HomePage() {
           <nav className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-primary">
-                💰 Financial Notes
+                💰 Poupando XP
               </h1>
               <p className="text-sm text-secondary">
                 Controle suas finanças de forma simples
@@ -259,7 +259,7 @@ export default function HomePage() {
         <div className="container">
           <div className="text-center text-secondary">
             <p>
-              &copy; 2024 Financial Notes. Feito com ❤️ para aprender Next.js
+              &copy; 2024 Poupando XP. Feito com ❤️ para aprender Next.js
             </p>
             <p className="text-sm mt-2">
               Stack: Next.js 14 + App Router + TypeScript + Fastify + PostgreSQL

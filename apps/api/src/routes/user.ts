@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/database';
 import { authMiddleware } from '@/middlewares/auth';
-import { User } from '@financial-notes/shared';
+import { User } from '@poupando-xp/shared';
 import { FastifyInstance } from 'fastify';
 
 /**

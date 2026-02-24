@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Configuração para monorepo
-  transpilePackages: ['@financial-notes/shared'],
+  transpilePackages: ['@poupando-xp/shared'],
 
   // Configurações de desenvolvimento
   async rewrites() {
